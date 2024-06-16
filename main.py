@@ -40,6 +40,8 @@ class Planet:
         self.mass = mass
         self.orbit = []
         self.sun = False
+        self.thrust = False
+        self.thrust_val = 0
         self.distance_to_sun = 0
         self.x_vel = 0
         self.y_vel = 0
@@ -77,14 +79,14 @@ class Planet:
         force_y = math.sin(theta) * force
         return force_x, force_y
 
-    def update_position(self, planets, add_up=0):
+    def update_position(self, planets):
         total_fx = total_fy = 0
         for planet in planets:
             if self == planet:
                 continue
             fx, fy = self.attraction(planet)
-            total_fx += fx + add_up
-            total_fy += fy + add_up
+            total_fx += fx + self.thrust_val
+            total_fy += fy + self.thrust_val
         self.x_vel += total_fx / self.mass * self.TIMESTEP
         self.y_vel += total_fy / self.mass * self.TIMESTEP
         self.x += self.x_vel * self.TIMESTEP
@@ -118,8 +120,9 @@ def main():
     earth = Planet(-1 * Planet.AU, 0, 10 * Planet.SCALE * 10 ** 9, COLOR_EARTH, 5.9722 * 10 ** 24)
     earth.y_vel = 29.783 * 1000
     
-    space_craft = Planet(-1 * Planet.AU, 0, 100, COLOR_SUN, 5.9722 * 10 ** 24)
+    space_craft = Planet(-1 * Planet.AU, 300, 5, COLOR_WHITE, 100)
     space_craft.y_vel = 29.783 * 1000
+    space_craft.thrust = True
 
     mars = Planet(-1.524 * Planet.AU, 100, 5 * Planet.SCALE * 10 ** 9, COLOR_MARS, 6.39 * 10 ** 23)
     mars.y_vel = 24.077 * 1000
@@ -163,6 +166,12 @@ def main():
                 for planet in planets:
                     planet.update_scale(1.25)
 
+        keys = pygame.key.get_pressed()
+        power = 10
+
+        if keys[pygame.K_UP] == 0:
+            space_craft.thrust_val += 0
+        
         for planet in planets:
             if not pause:
                 if not planet.sun:
@@ -171,7 +180,10 @@ def main():
                 planet.draw(WINDOW, 1, move_x, move_y, draw_line)
             else:
                 planet.draw(WINDOW, 0, move_x, move_y, draw_line)
-
+        if not pause:
+            space_craft.update_position(planets)
+        space_craft.draw(WINDOW, 0, move_x, move_y, draw_line)
+        
         fps_text = FONT_1.render("FPS: " + str(int(clock.get_fps())), True, COLOR_WHITE)
         WINDOW.blit(fps_text, (15, 15))
         text_surface = FONT_1.render("Press X or ESC to exit", True, COLOR_WHITE)
