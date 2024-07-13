@@ -6,8 +6,7 @@ using namespace Eigen;
 static RowVectorXd force_applied(double mass_1,RowVectorXd xyz_1, double mass_2, RowVectorXd xyz_2)
 {
     double G = 6.67430 * pow(10,-11);
-    RowVectorXd distance = xyz_1 - xyz_2;
-    RowVectorXd f = G * mass_1 * mass_2 * distance/ pow(distance.norm(),3);
+    RowVectorXd f = G * mass_1 * mass_2 * (xyz_1 - xyz_2 )/ pow((xyz_1 - xyz_2).norm(),3);
     return f;
 }
 
